@@ -1,0 +1,46 @@
+Scripts:
+
+1. populateLibraries.py
+
+executed as: python populateLibraries.py
+
+This script will read the file specified in the configuration file containing author information. For evey author the script retrieves the associated records and stores them in an ADS library. The name of the library is constructed from the author name and some additional parameters. For example, if the file "authors.txt" contains a line (see the example file for format explanation)
+
+  Henneken, Edwin A.;SAO;1983;0000-0003-4264-2450
+
+the records will be stored in a library: "LRproject_SAO_HennekenEdwinA". 
+
+2. libraryMetrics.py
+
+executed as: python libraryMetrics.py
+
+This script will cycle through all libraries whose name starts with "LRproject" (or whatever string is specified in the config.ini file for "project:").
+
+Configuration Parameters
+------------------------
++ Section: QueryParameters
+
+This section influences the query that will get sent to the search engine.
+
++ Section: InputFileLocations
+
+The "authors:" contains the file name for the file containing author names (and additional information) for the author queries.
+The file itself contains further information on the actual format.
+
++ Section: ProcessingParameters
+
+If the parameter "orcid:" is set to True, the ORCID value rather than the author name will be used (if one is defined in the file with author data)
+
+The parameter "project:" defines a string that will get prepended to every library name. This will get used later to select those libraries to be used to get metrics data.
+
++ Section: ADSLibrarySettings
+
+The parameter "update:" is set to True will update a library if it already exist. If set to False, the script will replace existing libraries.
+
++ Section: Metrics
+
+The "types:" parameter will determine what types of metrics will be calculated (see https://github.com/adsabs/adsabs-dev-api/blob/master/metrics.md)
+
++ Section: APIauthentication
+
+Put your API token in the parameter "apitoken:"

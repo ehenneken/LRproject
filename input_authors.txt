@@ -1,0 +1,5 @@
+# File format: author name;prefix;startyear;ORCiD
+# author name: Last, First (as complete as possible, e.g. "Henneken, Edwin A." instead of "Henneken, E")
+# prefix: identifier used to construct a ADS Library name (e.g. UCLA, MIT, STScI, ...)
+# ORCiD: if known (will be used, if the "orcid" configuration parameter is set to True)
+Henneken, Edwin A.;SAO;1983;0000-0003-4264-2450
