@@ -13,7 +13,8 @@ import math
 config_file = 'config.ini'
 # URL of the API
 API_URL = 'http://api.adsabs.harvard.edu/v1'
-
+# name of subdirectory for metrics data
+metrics_data_dir = "metrics"
 # Helper functions
 # config_section_map: get a specific section from the configuration file
 def config_section_map(section):
@@ -90,6 +91,9 @@ def get_library(token, libid):
 # First retrieve the configuration parameters
 Config = ConfigParser.ConfigParser()
 Config.read(config_file)
+# check if the "metrics" subdirectory exists
+if not os.path.exists(metrics_data_dir):
+    os.mkdir(metrics_data_dir)
 # What types of metrics will be retrieved from metrics endpoint
 try:
     mtypes = config_section_map('Metrics')['types']
@@ -125,4 +129,8 @@ for library in libdata:
     bibcodes = get_library(token, libid)
     # retrieve metrics for these bibcodes
     metrics_data = get_metrics(token, bibcodes, mtypes)
+    # name of output file is based on the name of the library
+    ofile = "%s/%s.json" % (metrics_data_dir, library['name'])
     # write the relevant data to file
+    with open(ofile, 'w') as outfile:
+        json.dump(metrics_data, outfile)
