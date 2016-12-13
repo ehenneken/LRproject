@@ -2,17 +2,18 @@ import urllib2
 import urllib
 import json
 
-APItoken = '8VMzVkQIfXMbGT7WjzLQIkovB1CVw0LRGjp3H61L'
+APItoken = 'TOKEN'
 
-query = "citations(author:'Kormendy,John') year:2010-2015"
-fields= "bibcode,aff,citation_num"
+query = "author:'Kormendy,John' year:2000-2005"
+fields= "bibcode, title, author, citation_count"
 
 API_URL = 'http://api.adsabs.harvard.edu/v1'
 
 def get_records(token, query_string, return_fields):
     params = {
         'q':query_string,
-        'fl': return_fields
+        'fl': return_fields,
+        'rows': 10000
     }
     # URL-encode the parameters
     qparams = urllib.urlencode(params)
@@ -30,4 +31,6 @@ def get_records(token, query_string, return_fields):
     return data
 
 data = get_records(APItoken, query, fields)
-print data
+
+for item in data:
+    print item
