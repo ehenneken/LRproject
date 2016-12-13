@@ -33,4 +33,4 @@ def get_records(token, query_string, return_fields):
 data = get_records(APItoken, query, fields)
 
 for item in data:
-    print item
+    print "%s|%s|%s|%s" % (item['bibcode'], item['title'][0], ";".join(item['author']), item['citation_count'])
