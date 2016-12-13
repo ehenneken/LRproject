@@ -5,13 +5,28 @@ import json
 import math
 
 
-APItoken = '8VMzVkQIfXMbGT7WjzLQIkovB1CVw0LRGjp3H61L'
+APItoken = 'TOKEN'
 
-library_id = sys.argv[1]
+library_file = 'libraries.txt'
+
+metrics_types = 'basic,citations,indicators'
 
 API_URL = 'http://api.adsabs.harvard.edu/v1'
 
-def get_library(token, libid):
+def get_library(token, libname):
+    req = urllib2.Request("%s/biblib/libraries" % API_URL)
+    req.add_header('Content-type', 'application/json')
+    req.add_header('Accept', 'text/plain')
+    req.add_header('Authorization', 'Bearer %s' % token)
+    # do the actual request
+    resp = urllib2.urlopen(req)
+    data = json.load(resp)['libraries']
+    try:
+        libdata = [d for d in data if d['name'] == libname][0]
+    except:
+        sys.stderr.write('Cannot find library %s!\n' % libname)
+        sys.exit()
+    libid = libdata['id']
     # Retrieve the contents of the library specified
     # rows: the number of records to retrieve per call
     rows = 25
@@ -45,10 +60,37 @@ def get_library(token, libid):
         start += rows
 
     return documents
-	
-bibcodes = get_library(APItoken, library_id)
 
-print bibcodes
+# get_records: query the API and retrieve records
+def get_metrics(token, bibcodes, metrics_types):
+    # Define the parameters used by the metrics service
+    params = {
+        'bibcodes': bibcodes,
+        'types': metrics_types.split(',')
+    }
+    # Set the correct header information
+    headers = {
+        'Content-type': 'application/json',
+        'Accept': 'text/plain',
+        'Authorization': 'Bearer %s' % token
+    }
+    # Fire off the query
+    req = urllib2.Request("%s/metrics" % API_URL, json.dumps(params), headers)
+    resp = urllib2.urlopen(req)
+    # and retrieve the data to work with
+    data = json.load(resp)
+    # return the data retrieved
+    return data
 
+libraries = open(library_file).read().strip().split('\n')
+print "Library | Total citations | Normalized citations | Hirsch | Tori"
+for library in libraries:
+    bibcodes = get_library(APItoken, library)
+    metrics_data = get_metrics(APItoken, bibcodes, metrics_types)
+    print "%s | %s | %s | %s | %s" % (library, metrics_data['citation stats']['total number of citations'], 
+                                          metrics_data['citation stats']['normalized number of citations'],
+                                          metrics_data['indicators']['h'],
+                                          metrics_data['indicators']['tori'])
+    
 
 
