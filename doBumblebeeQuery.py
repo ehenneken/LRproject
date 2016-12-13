@@ -4,7 +4,9 @@ import json
 
 APItoken = 'TOKEN'
 
+# query parameter descriptions: http://adsabs.github.io/help/search/search-syntax
 query = "author:'Kormendy,John' year:2000-2005"
+# for available fields, see: http://adsabs.github.io/help/search/comprehensive-solr-term-list
 fields= "bibcode, title, author, citation_count"
 
 API_URL = 'http://api.adsabs.harvard.edu/v1'
