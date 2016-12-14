@@ -13,6 +13,9 @@ metrics_types = 'basic,citations,indicators'
 
 API_URL = 'http://api.adsabs.harvard.edu/v1'
 
+class NoSuchLibrary(Exception):
+    pass
+
 def get_library(token, libname):
     req = urllib2.Request("%s/biblib/libraries" % API_URL)
     req.add_header('Content-type', 'application/json')
@@ -24,8 +27,7 @@ def get_library(token, libname):
     try:
         libdata = [d for d in data if d['name'] == libname][0]
     except:
-        sys.stderr.write('Cannot find library %s!\n' % libname)
-        sys.exit()
+        raise NoSuchLibrary 
     libid = libdata['id']
     # Retrieve the contents of the library specified
     # rows: the number of records to retrieve per call
@@ -83,14 +85,31 @@ def get_metrics(token, bibcodes, metrics_types):
     return data
 
 libraries = open(library_file).read().strip().split('\n')
-print "Library | Total citations | Normalized citations | Hirsch | Tori"
+print "Library | Number of papers | Normalized paper count | Total number of reads | Reads current year | Total number of downloads | Downloads current year | Total citations | Normalized citations | Refereed citations | Median citations | Average citations | Hirsch | Tori | i10 | i100 | READ10 | m | g"
 for library in libraries:
-    bibcodes = get_library(APItoken, library)
-    metrics_data = get_metrics(APItoken, bibcodes, metrics_types)
-    print "%s | %s | %s | %s | %s" % (library, metrics_data['citation stats']['total number of citations'], 
+    try:
+        bibcodes = get_library(APItoken, library)
+        metrics_data = get_metrics(APItoken, bibcodes, metrics_types)
+        print "%s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s" % (library, 
+                                          metrics_data['basic stats']['number of papers'], 
+                                          metrics_data['basic stats']['normalized paper count'], 
+                                          metrics_data['basic stats']['total number of reads'], 
+                                          metrics_data['basic stats']['recent number of reads'], 
+                                          metrics_data['basic stats']['total number of downloads'],
+                                          metrics_data['basic stats']['recent number of downloads'],
+                                          metrics_data['citation stats']['total number of citations'], 
                                           metrics_data['citation stats']['normalized number of citations'],
+                                          metrics_data['citation stats']['total number of refereed citations'],
+                                          metrics_data['citation stats']['median number of citations'],
+                                          metrics_data['citation stats']['average number of citations'],
                                           metrics_data['indicators']['h'],
-                                          metrics_data['indicators']['tori'])
-    
+                                          metrics_data['indicators']['tori'],
+                                          metrics_data['indicators']['i10'],
+                                          metrics_data['indicators']['i100'],
+                                          metrics_data['indicators']['read10'],
+                                          metrics_data['indicators']['m'],
+                                          metrics_data['indicators']['g'])
+    except NoSuchLibrary:
+        print "%s | %s | %s | %s | %s" % (library, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999, 9999)
 
 
